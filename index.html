@@ -10,12 +10,12 @@
 
     :root {
       --bg: #000000;
-      --surface: #0a0a0a;
+      --surface: rgba(10, 10, 10, 0.85); /* Полупрозрачность для эффекта стекла */
       --border: #222222;
       --border-hover: #333333;
       --accent: #c4ff00;
       --text: #ffffff;
-      --text-muted: #666666;
+      --text-muted: #888888;
     }
 
     * {
@@ -31,6 +31,36 @@
       color: var(--text);
       padding: 20px;
       padding-bottom: 40px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* === АНИМИРОВАННЫЙ ФОН "ЖИДКИЙ МЕТАЛЛ" === */
+    .liquid-bg {
+      position: fixed;
+      top: -20%;
+      left: -20%;
+      width: 140%;
+      height: 140%;
+      background: 
+        radial-gradient(circle at 30% 30%, #4a4a4a 0%, transparent 30%),
+        radial-gradient(circle at 70% 70%, #2a2a2a 0%, transparent 40%),
+        linear-gradient(135deg, #000000 0%, #151515 50%, #000000 100%);
+      filter: url(#liquid-filter);
+      z-index: -1;
+      opacity: 0.45; /* Прозрачность, чтобы не мешать тексту */
+      animation: liquidMotion 15s ease-in-out infinite alternate;
+    }
+
+    @keyframes liquidMotion {
+      0% { transform: scale(1) translate(0, 0); }
+      100% { transform: scale(1.1) translate(-2%, -2%); }
+    }
+    /* ========================================= */
+
+    .content-wrapper {
+      position: relative;
+      z-index: 1;
     }
 
     /* Заголовки разделов */
@@ -42,7 +72,7 @@
       letter-spacing: 2px;
       text-transform: uppercase;
       margin-bottom: 12px;
-      margin-top: 24px;
+      margin-top: 28px;
       border-bottom: 1px solid var(--border);
       padding-bottom: 8px;
     }
@@ -67,13 +97,14 @@
 
     .input-row input {
       width: 100%;
-      background: var(--bg);
+      background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text);
       padding: 14px;
       font-size: 14px;
       outline: none;
       border-radius: 0;
+      backdrop-filter: blur(10px); /* Размытие фона под полем */
       transition: border-color 0.2s;
     }
 
@@ -89,13 +120,14 @@
     }
 
     .service-row {
-      background: var(--bg);
+      background: var(--surface);
       border: 1px solid var(--border);
       padding: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
+      backdrop-filter: blur(10px);
       transition: all 0.2s ease;
     }
 
@@ -105,7 +137,7 @@
 
     .service-row.checked {
       border-color: var(--accent);
-      background: rgba(196, 255, 0, 0.03);
+      background: rgba(196, 255, 0, 0.05);
     }
 
     .service-info {
@@ -212,76 +244,92 @@
 </head>
 <body>
 
-  <div class="section-label">Автомобиль</div>
-  <div class="input-row">
-    <label>Марка и модель</label>
-    <input type="text" id="client-car" placeholder="Например: BMW X5">
-  </div>
+  <!-- SVG-фильтр для эффекта переливания жидкого стекла/металла -->
+  <svg style="position: absolute; width: 0; height: 0;">
+    <filter id="liquid-filter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="3" result="noise">
+        <animate attributeName="baseFrequency" values="0.015;0.02;0.015" dur="15s" repeatCount="indefinite" />
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="40" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
 
-  <div class="section-label">Комплекс услуг</div>
-  <div class="services-stack">
-    <div class="service-row checked" onclick="toggleOption(this, '3-фазный детейлинг-комплекс', 65)">
-      <div class="service-info">
-        <div class="checkbox-box"></div>
-        <div class="service-meta">
-          <h4>Детейлинг-мойка</h4>
-          <p>Ручная очистка, наношампунь, турбосушка</p>
-        </div>
-      </div>
-      <div class="service-cost">65 BYN</div>
+  <!-- Блок с анимированным фоном -->
+  <div class="liquid-bg"></div>
+
+  <!-- Основной контент интерфейса -->
+  <div class="content-wrapper">
+    <div class="section-label">Автомобиль</div>
+    <div class="input-row">
+      <label>Марка и модель</label>
+      <input type="text" id="client-car" placeholder="Например: BMW X5">
     </div>
 
-    <div class="service-row" onclick="toggleOption(this, 'Глубокая химчистка интерьера', 290)">
-      <div class="service-info">
-        <div class="checkbox-box"></div>
-        <div class="service-meta">
-          <h4>Химчистка салона</h4>
-          <p>Разбор, экстрактор, консервация</p>
+    <div class="section-label">Комплекс услуг</div>
+    <div class="services-stack">
+      <div class="service-row checked" onclick="toggleOption(this, '3-фазный детейлинг-комплекс', 65)">
+        <div class="service-info">
+          <div class="checkbox-box"></div>
+          <div class="service-meta">
+            <h4>Детейлинг-мойка</h4>
+            <p>Ручная очистка, наношампунь, турбосушка</p>
+          </div>
         </div>
+        <div class="service-cost">65 BYN</div>
       </div>
-      <div class="service-cost">290 BYN</div>
+
+      <div class="service-row" onclick="toggleOption(this, 'Глубокая химчистка интерьера', 290)">
+        <div class="service-info">
+          <div class="checkbox-box"></div>
+          <div class="service-meta">
+            <h4>Химчистка салона</h4>
+            <p>Разбор, экстрактор, консервация</p>
+          </div>
+        </div>
+        <div class="service-cost">290 BYN</div>
+      </div>
+
+      <div class="service-row" onclick="toggleOption(this, 'Абразивная полировка кузова', 380)">
+        <div class="service-info">
+          <div class="checkbox-box"></div>
+          <div class="service-meta">
+            <h4>Полировка кузова</h4>
+            <p>Устранение глубоких царапин и микрориски</p>
+          </div>
+        </div>
+        <div class="service-cost">380 BYN</div>
+      </div>
+
+      <div class="service-row" onclick="toggleOption(this, 'Керамика 9H (2 слоя)', 520)">
+        <div class="service-info">
+          <div class="checkbox-box"></div>
+          <div class="service-meta">
+            <h4>Керамика 9H</h4>
+            <p>Глубокий глянец и гидрофобный слой</p>
+          </div>
+        </div>
+        <div class="service-cost">520 BYN</div>
+      </div>
     </div>
 
-    <div class="service-row" onclick="toggleOption(this, 'Абразивная полировка кузова', 380)">
-      <div class="service-info">
-        <div class="checkbox-box"></div>
-        <div class="service-meta">
-          <h4>Полировка кузова</h4>
-          <p>Устранение глубоких царапин и микрориски</p>
-        </div>
-      </div>
-      <div class="service-cost">380 BYN</div>
+    <div class="section-label">Бронирование</div>
+    <div class="input-row">
+      <label>Номер телефона</label>
+      <input type="tel" id="client-phone" placeholder="+375 (__) ___-__-__" value="+375 ">
     </div>
 
-    <div class="service-row" onclick="toggleOption(this, 'Керамика 9H (2 слоя)', 520)">
-      <div class="service-info">
-        <div class="checkbox-box"></div>
-        <div class="service-meta">
-          <h4>Керамика 9H</h4>
-          <p>Глубокий глянец и гидрофобный слой</p>
-        </div>
-      </div>
-      <div class="service-cost">520 BYN</div>
+    <div class="input-row">
+      <label>Желаемая дата визита</label>
+      <input type="text" id="client-date" placeholder="Например: Среда, 15:00">
     </div>
-  </div>
 
-  <div class="section-label">Бронирование</div>
-  <div class="input-row">
-    <label>Номер телефона</label>
-    <input type="tel" id="client-phone" placeholder="+375 (__) ___-__-__" value="+375 ">
-  </div>
+    <div class="summary-bar">
+      <span class="summary-title">ИТОГО</span>
+      <span class="summary-sum" id="total-price">65 BYN</span>
+    </div>
 
-  <div class="input-row">
-    <label>Желаемая дата визита</label>
-    <input type="text" id="client-date" placeholder="Например: Среда, 15:00">
+    <button class="submit-action" onclick="submitToBot()">ОТПРАВИТЬ ЗАЯВКУ</button>
   </div>
-
-  <div class="summary-bar">
-    <span class="summary-title">ИТОГО</span>
-    <span class="summary-sum" id="total-price">65 BYN</span>
-  </div>
-
-  <button class="submit-action" onclick="submitToBot()">ОТПРАВИТЬ ЗАЯВКУ</button>
 
   <script>
     const tg = window.Telegram ? window.Telegram.WebApp : null;

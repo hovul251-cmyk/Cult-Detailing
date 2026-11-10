@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CULT DETAILING | BOOKING</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syncopate:wght@400;700&display=swap');
+
+    :root {
+      --bg: #000000;
+      --surface: #0a0a0a;
+      --border: #222222;
+      --border-hover: #333333;
+      --accent: #c4ff00;
+      --text: #ffffff;
+      --text-muted: #666666;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      padding-bottom: 40px;
+    }
+
+    /* Заголовки разделов */
+    .section-label {
+      font-family: 'Syncopate', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      margin-top: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .section-label:first-child {
+      margin-top: 0;
+    }
+
+    /* Поля ввода (Инпуты) */
+    .input-row {
+      margin-bottom: 16px;
+    }
+
+    .input-row label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .input-row input {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 14px;
+      font-size: 14px;
+      outline: none;
+      border-radius: 0;
+      transition: border-color 0.2s;
+    }
+
+    .input-row input:focus {
+      border-color: var(--accent);
+    }
+
+    /* Список услуг */
+    .services-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .service-row {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .service-row:hover {
+      border-color: var(--border-hover);
+    }
+
+    .service-row.checked {
+      border-color: var(--accent);
+      background: rgba(196, 255, 0, 0.03);
+    }
+
+    .service-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .checkbox-box {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .service-row.checked .checkbox-box {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .checkbox-box::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--bg);
+      display: none;
+    }
+
+    .service-row.checked .checkbox-box::after {
+      display: block;
+    }
+
+    .service-meta h4 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: var(--text);
+    }
+
+    .service-meta p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .service-cost {
+      font-family: 'Syncopate', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .service-row.checked .service-cost {
+      color: var(--accent);
+    }
+
+    /* Итог и кнопка */
+    .summary-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-top: 32px;
+      margin-bottom: 16px;
+    }
+
+    .summary-title {
+      font-family: 'Syncopate', sans-serif;
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+
+    .summary-sum {
+      font-family: 'Syncopate', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .submit-action {
+      width: 100%;
+      background: var(--text);
+      color: var(--bg);
+      border: none;
+      padding: 18px;
+      font-family: 'Syncopate', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border-radius: 0;
+      transition: opacity 0.2s;
+    }
+
+    .submit-action:active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="section-label">Автомобиль</div>
+  <div class="input-row">
+    <label>Марка и модель</label>
+    <input type="text" id="client-car" placeholder="Например: BMW X5">
+  </div>
+
+  <div class="section-label">Комплекс услуг</div>
+  <div class="services-stack">
+    <div class="service-row checked" onclick="toggleOption(this, '3-фазный детейлинг-комплекс', 65)">
+      <div class="service-info">
+        <div class="checkbox-box"></div>
+        <div class="service-meta">
+          <h4>Детейлинг-мойка</h4>
+          <p>Ручная очистка, наношампунь, турбосушка</p>
+        </div>
+      </div>
+      <div class="service-cost">65 BYN</div>
+    </div>
+
+    <div class="service-row" onclick="toggleOption(this, 'Глубокая химчистка интерьера', 290)">
+      <div class="service-info">
+        <div class="checkbox-box"></div>
+        <div class="service-meta">
+          <h4>Химчистка салона</h4>
+          <p>Разбор, экстрактор, консервация</p>
+        </div>
+      </div>
+      <div class="service-cost">290 BYN</div>
+    </div>
+
+    <div class="service-row" onclick="toggleOption(this, 'Абразивная полировка кузова', 380)">
+      <div class="service-info">
+        <div class="checkbox-box"></div>
+        <div class="service-meta">
+          <h4>Полировка кузова</h4>
+          <p>Устранение глубоких царапин и микрориски</p>
+        </div>
+      </div>
+      <div class="service-cost">380 BYN</div>
+    </div>
+
+    <div class="service-row" onclick="toggleOption(this, 'Керамика 9H (2 слоя)', 520)">
+      <div class="service-info">
+        <div class="checkbox-box"></div>
+        <div class="service-meta">
+          <h4>Керамика 9H</h4>
+          <p>Глубокий глянец и гидрофобный слой</p>
+        </div>
+      </div>
+      <div class="service-cost">520 BYN</div>
+    </div>
+  </div>
+
+  <div class="section-label">Бронирование</div>
+  <div class="input-row">
+    <label>Номер телефона</label>
+    <input type="tel" id="client-phone" placeholder="+375 (__) ___-__-__" value="+375 ">
+  </div>
+
+  <div class="input-row">
+    <label>Желаемая дата визита</label>
+    <input type="text" id="client-date" placeholder="Например: Среда, 15:00">
+  </div>
+
+  <div class="summary-bar">
+    <span class="summary-title">ИТОГО</span>
+    <span class="summary-sum" id="total-price">65 BYN</span>
+  </div>
+
+  <button class="submit-action" onclick="submitToBot()">ОТПРАВИТЬ ЗАЯВКУ</button>
+
+  <script>
+    const tg = window.Telegram ? window.Telegram.WebApp : null;
+    if (tg) {
+      tg.ready();
+      tg.expand();
+      tg.setHeaderColor('#000000'); 
+      tg.setBackgroundColor('#000000');
+    }
+
+    let selected = [{ name: '3-фазный детейлинг-комплекс', price: 65 }];
+
+    function calc() {
+      let total = selected.reduce((acc, curr) => acc + curr.price, 0);
+      document.getElementById('total-price').innerText = `${total} BYN`;
+      return total;
+    }
+
+    function toggleOption(card, name, price) {
+      card.classList.toggle('checked');
+      const idx = selected.findIndex(s => s.name === name);
+      if (idx > -1) {
+        selected.splice(idx, 1);
+      } else {
+        selected.push({ name, price });
+      }
+      calc();
+    }
+
+    function submitToBot() {
+      const carInput = document.getElementById('client-car').value.trim() || 'Не указана';
+      const phone = document.getElementById('client-phone').value.trim();
+      const date = document.getElementById('client-date').value.trim() || 'Не указана';
+
+      if (!phone || phone.length < 9) {
+        alert('Пожалуйста, введите номер телефона.');
+        return;
+      }
+
+      const orderData = {
+        car_name: carInput,
+        services: selected.map(s => s.name),
+        total_price: calc(),
+        phone: phone,
+        date: date
+      };
+
+      if (tg) {
+        tg.sendData(JSON.stringify(orderData));
+      } else {
+        alert('Заявка сформирована (вне Telegram):\n' + JSON.stringify(orderData, null, 2));
+      }
+    }
+  </script>
+</body>
+</html>
